@@ -1,0 +1,9 @@
+# .gitignore
+.env
+config/mcp_servers.json
+data/
+logs/
+__pycache__/
+*.pyc
+.DS_Store
+node_modules/
