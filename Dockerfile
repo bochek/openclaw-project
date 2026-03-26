@@ -24,8 +24,8 @@ RUN curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg | tee 
     apt-get update && apt-get install -y tailscale && \
     rm -rf /var/lib/apt/lists/*
 
-# Install OpenClaw AND the playwright python package (CRITICAL)
-RUN pip install --no-cache-dir openclaw playwright
+# Install OpenClaw, Playwright AND tenacity (needed as a workaround for current version)
+RUN pip install --no-cache-dir openclaw playwright tenacity
 
 # Use python -m playwright to ensure we call the installed package correctly
 RUN python -m playwright install chromium
