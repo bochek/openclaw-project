@@ -23,6 +23,6 @@ fi
 export PORT=${OPENCLAW_GATEWAY_PORT:-8080}
 echo "Starting OpenClaw on port $PORT..."
 
-# Use the absolute path to the openclaw binary
-echo "Executing: /usr/local/bin/openclaw run --config /app/config/openclaw.json"
-exec /usr/local/bin/openclaw run --config /app/config/openclaw.json
+# Use the python module execution for the CLI directly
+echo "Executing: python3 -m openclaw.cli start --config /app/config/openclaw.json"
+exec python3 -m openclaw.cli start --config /app/config/openclaw.json
