@@ -5,10 +5,11 @@ mkdir -p /var/run/tailscale /var/lib/tailscale /data/.openclaw /data/workspace
 
 # Start tailscaled in user-space mode for Render
 echo "Starting tailscaled in userspace-networking mode..."
+# Using --tun=userspace-networking is required when /dev/net/tun is not available (like on Render)
 tailscaled --tun=userspace-networking --socks5-server=localhost:1055 &
 
 # Wait for tailscaled to start
-sleep 2
+sleep 5
 
 # Authenticate with Tailscale
 if [ -n "$TS_AUTHKEY" ]; then
@@ -22,5 +23,5 @@ fi
 export PORT=${OPENCLAW_GATEWAY_PORT:-8080}
 echo "Starting OpenClaw on port $PORT..."
 
-# Note: We use absolute paths to ensure we find the config
-exec openclaw run --config /app/config/openclaw.json
+# Use python3 -m openclaw to ensure the module is found even if 'openclaw' binary is not in PATH
+exec python3 -m openclaw run --config /app/config/openclaw.json
