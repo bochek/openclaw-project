@@ -8,7 +8,7 @@ Deploying OpenClaw to Render allowing it to securely access your local MCP serve
 2.  **Create a New Service** on Render using the `Blueprint` (pointing to `render.yaml`).
 3.  **Configure Secrets** in Render Dashboard:
     - `TS_AUTHKEY`: Generate an **Ephemeral Auth Key** in your [Tailscale Admin Console](https://login.tailscale.com/admin/settings/keys).
-    - `TOGETHER_API_KEY`: Your key from Together AI.
+    - `OPENROUTER_API_KEY`: Your key from [OpenRouter](https://openrouter.ai/).
     - `TELEGRAM_BOT_TOKEN`: Your bot token.
 
 ## 🔐 Tailscale Integration

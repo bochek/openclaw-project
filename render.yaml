@@ -15,9 +15,12 @@ services:
         sync: false # Set this in Render Dashboard (Secret)
       - key: TS_HOSTNAME
         value: openclaw-render
-      # Together AI
-      - key: TOGETHER_API_KEY
+      # OpenRouter
+      - key: OPENROUTER_API_KEY
         sync: false
+      # Together AI (Optional)
+      # - key: TOGETHER_API_KEY
+      #   sync: false
       # Telegram
       - key: TELEGRAM_BOT_TOKEN
         sync: false
