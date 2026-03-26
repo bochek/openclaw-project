@@ -1,5 +1,4 @@
 # Use the official Microsoft Playwright Python image as base
-# This image comes with Python and all browser dependencies pre-installed
 FROM mcr.microsoft.com/playwright/python:v1.45.0-jammy
 
 # Set working directory
@@ -25,12 +24,11 @@ RUN curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg | tee 
     apt-get update && apt-get install -y tailscale && \
     rm -rf /var/lib/apt/lists/*
 
-# Install OpenClaw
-RUN pip install --no-cache-dir openclaw
+# Install OpenClaw AND the playwright python package
+RUN pip install --no-cache-dir openclaw playwright
 
-# We don't need 'playwright install' here because the base image already includes browsers
-# But we can run it just in case a specific version is needed
-RUN playwright install chromium
+# Use python -m playwright to ensure we call the installed package correctly
+RUN python -m playwright install chromium
 
 # Create directories for persistent storage and Tailscale runtime
 RUN mkdir -p /app/config /app/data /app/logs /app/scripts /var/run/tailscale /var/cache/tailscale /var/lib/tailscale /data
