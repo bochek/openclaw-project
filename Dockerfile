@@ -30,6 +30,10 @@ RUN pip install --no-cache-dir openclaw playwright tenacity
 # HOTPATCH: Fix known bug in openclaw 2026.3.20 (broken TimeoutError import from cmdop)
 RUN sed -i 's/TimeoutError,//g' /usr/local/lib/python3.10/dist-packages/openclaw/__init__.py
 
+# DEBUG: Confirm binary location
+RUN find /usr/local/bin -name "openclaw*"
+RUN find /usr/local/bin -name "pyclaw*"
+
 # Use python -m playwright to ensure we call the installed package correctly
 RUN python -m playwright install chromium
 

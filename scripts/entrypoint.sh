@@ -23,6 +23,6 @@ fi
 export PORT=${OPENCLAW_GATEWAY_PORT:-8080}
 echo "Starting OpenClaw on port $PORT..."
 
-# Use python3 -m openclaw to ensure the module is found even if 'openclaw' binary is not in PATH
-echo "Executing: python3 -m openclaw run --config /app/config/openclaw.json"
-exec python3 -m openclaw run --config /app/config/openclaw.json
+# Use the absolute path to the openclaw binary
+echo "Executing: /usr/local/bin/openclaw run --config /app/config/openclaw.json"
+exec /usr/local/bin/openclaw run --config /app/config/openclaw.json
