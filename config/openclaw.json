@@ -1,0 +1,16 @@
+{
+  "llm": {
+    "provider": "openrouter",
+    "model": "${LLM_MODEL:-openrouter/meta-llama/Llama-3-70b-chat-hf}"
+  },
+  "mcp": {
+    "config_path": "/app/config/mcp_servers.json"
+  },
+  "storage": {
+    "state_dir": "/data/.openclaw",
+    "workspace_dir": "/data/workspace"
+  },
+  "gateway": {
+    "port": 8080
+  }
+}
