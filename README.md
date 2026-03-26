@@ -1,44 +1,38 @@
-# OpenClaw Deployment Guide (DigitalOcean)
+# OpenClaw on Render.com with Tailscale
 
-This repository contains the configuration files for deploying the **OpenClaw AI Agent** on a DigitalOcean Droplet using Docker Compose.
+Deploying OpenClaw to Render allowing it to securely access your local MCP servers via Tailscale.
 
-## 🚀 Quick Start
+## 🚀 Deployment to Render
 
-1.  **Clone the repository** (if you haven't already):
-    ```bash
-    git clone <your-repo-url> openclaw-project
-    cd openclaw-project
-    ```
+1.  **Push your code** to GitHub.
+2.  **Create a New Service** on Render using the `Blueprint` (pointing to `render.yaml`).
+3.  **Configure Secrets** in Render Dashboard:
+    - `TS_AUTHKEY`: Generate an **Ephemeral Auth Key** in your [Tailscale Admin Console](https://login.tailscale.com/admin/settings/keys).
+    - `TOGETHER_API_KEY`: Your key from Together AI.
+    - `TELEGRAM_BOT_TOKEN`: Your bot token.
 
-2.  **Configure Environment Variables**:
-    Copy the example environment file and fill in your secrets:
-    ```bash
-    cp .env.example .env
-    nano .env
-    ```
+## 🔐 Tailscale Integration
 
-3.  **Prepare MCP Servers Configuration**:
-    The agent is pre-configured to talk to your local MCP servers via Cloudflare Tunnel. Ensure your `CF_ACCESS_CLIENT_ID` and `CF_ACCESS_CLIENT_SECRET` are set in `.env`.
+- The agent will appear as a node named `openclaw-render` in your Tailscale network.
+- To reach local machines, use their **Tailscale MagicDNS** name (e.g., `my-laptop`) or their **Tailscale IP** (starts with `100.`).
+- Example `mcp_servers.json`:
+  ```json
+  {
+    "mcpServers": {
+      "local-pc": {
+        "command": "curl",
+        "args": ["http://my-pc:1234/sse"]
+      }
+    }
+  }
+  ```
 
-4.  **Deploy**:
-    ```bash
-    docker-compose up -d --build
-    ```
+## 🛠️ Local Development
 
-## 🔑 API Keys Checklist
+- **Build**: `docker build -t openclaw-render .`
+- **Run**: `docker run --env-file .env openclaw-render`
 
-- [ ] **Together AI**: Get your API key from [together.ai](https://api.together.xyz/).
-- [ ] **Telegram**: Create a bot via [@BotFather](https://t.me/botfather) to get the token.
-- [ ] **Cloudflare**: In Zero Trust -> Access -> Service Auth, create a Service Token for `mcp.mydomain.com`.
-- [ ] **Google Cloud**: Create a Service Account, download the JSON key, and place it at `config/google_service_account.json`.
+## 🛡️ Security
 
-## 🛡️ Networking & Security
-
-- **Cloudflare Tunnel**: The `mcp_servers.json` uses `curl` with headers to securely bypass Cloudflare Access while communicating with your local servers.
-- **Persistent Data**: Logs and session data (including WhatsApp) are stored in the `./data` and `./logs` folders for persistence between restarts.
-
-## 🛠️ Commands for DigitalOcean
-
-- **View Logs**: `docker-compose logs -f openclaw`
-- **Restart Agent**: `docker-compose restart openclaw`
-- **Update Image**: `docker-compose pull && docker-compose up -d`
+- All traffic between Render and your local machines is encrypted by Tailscale.
+- Cloudflare Tunnel is no longer required for this setup but can be used as a fallback.

@@ -4,7 +4,7 @@ FROM python:3.11-slim-bullseye
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies for Playwright/Puppeteer (WhatsApp & Browsing)
+# Install system dependencies for Playwright/Puppeteer + Tailscale
 RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     gnupg \
@@ -24,22 +24,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libasound2 \
     libpango-1.0-0 \
     libpangocairo-1.0-0 \
+    iptables \
+    iproute2 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install OpenClaw (assuming pip installable or from repo)
-# For the purpose of this template, we assume the user clones the repo here
-# Or we can pull the latest release:
-RUN pip install --no-cache-dir openclaw playwright
+# Install Tailscale
+RUN curl -fsSL https://tailscale.com/install.sh | sh
 
-# Install browser binaries for Playwright
+# Install OpenClaw
+RUN pip install --no-cache-dir openclaw playwright
 RUN playwright install chromium
 RUN playwright install-deps chromium
 
 # Create directories for persistent storage
-RUN mkdir -p /app/config /app/data /app/logs
+RUN mkdir -p /app/config /app/data /app/logs /app/scripts /var/run/tailscale /var/cache/tailscale /var/lib/tailscale
 
-# Copy local config (if any)
+# Copy local config and scripts
 COPY config/ /app/config/
+COPY scripts/entrypoint.sh /app/scripts/entrypoint.sh
+RUN chmod +x /app/scripts/entrypoint.sh
 
-# Command to run OpenClaw
-CMD ["openclaw", "run", "--config", "/app/config/openclaw.json"]
+# Use entrypoint to start Tailscale and OpenClaw
+ENTRYPOINT ["/app/scripts/entrypoint.sh"]

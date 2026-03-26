@@ -13,11 +13,25 @@ services:
       - ./logs:/app/logs
     environment:
       - PYTHONUNBUFFERED=1
-    # Adding security caps for browser automation if needed
     cap_add:
       - SYS_ADMIN
     security_opt:
       - seccomp:unconfined
+    depends_on:
+      - mission-control
+
+  mission-control:
+    image: builderz-labs/mission-control:latest
+    container_name: mission-control
+    restart: unless-stopped
+    ports:
+      - "${MISSION_CONTROL_PORT:-3001}:3000"
+    env_file:
+      - .env
+    volumes:
+      - ./data/mission-control:/app/data
+    environment:
+      - NEXTAUTH_URL=http://localhost:${MISSION_CONTROL_PORT:-3001}
 
 networks:
   default:
