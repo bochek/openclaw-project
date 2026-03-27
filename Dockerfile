@@ -10,14 +10,19 @@ FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install Tailscale, Python (for skills), and certificates
+# Install Tailscale, Python (for skills), NodeJS (for Surge), and certificates
 RUN apt-get update && apt-get install -y \
     curl \
     ca-certificates \
     python3 \
     python3-pip \
     iptables \
+    nodejs \
+    npm \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Surge globally for simple static site deployment
+RUN npm install -g surge
 
 RUN curl -fsSL https://tailscale.com/install.sh | sh
 
