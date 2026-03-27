@@ -1,5 +1,5 @@
 # Stage 1: Build GoClaw from source
-FROM golang:1.22-alpine AS builder
+FROM golang:alpine AS builder
 RUN apk add --no-cache git make
 WORKDIR /app
 RUN git clone https://github.com/nextlevelbuilder/goclaw.git .
