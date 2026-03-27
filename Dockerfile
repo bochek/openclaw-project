@@ -3,7 +3,7 @@ FROM golang:alpine AS builder
 RUN apk add --no-cache git make
 WORKDIR /app
 RUN git clone https://github.com/nextlevelbuilder/goclaw.git .
-RUN go build -o goclaw ./cmd/gateway
+RUN make build
 
 # Stage 2: Final Operational Image
 FROM ubuntu:22.04
