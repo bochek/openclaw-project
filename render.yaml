@@ -13,17 +13,17 @@ services:
           property: connectionString
       - key: GOCLAW_AUTO_UPGRADE
         value: "true"
+      - key: GOCLAW_TELEGRAM_TOKEN
+        sync: false
+      - key: GOCLAW_ENCRYPTION_KEY
+        sync: false # 64-char hex string
+      - key: GOCLAW_GATEWAY_TOKEN
+        sync: false
       - key: TS_AUTHKEY
-        sync: false # Set this in Render Dashboard (Secret)
+        sync: false
       - key: TS_HOSTNAME
-        value: goclaw-render
-      # AI Provider (GoClaw specific environment variable)
+        value: echo-bot-render
       - key: GOCLAW_OPENROUTER_API_KEY
-        sync: false
-      # Telegram
-      - key: TELEGRAM_BOT_TOKEN
-        sync: false
-      - key: TELEGRAM_CHAT_ID
         sync: false
     disk:
       name: goclaw-data

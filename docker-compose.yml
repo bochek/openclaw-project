@@ -1,38 +1,17 @@
 services:
-  openclaw:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: openclaw-agent
-    restart: unless-stopped
-    env_file:
-      - .env
+  goclaw-ui:
+    image: node:22-alpine
+    container_name: goclaw-ui
+    working_dir: /app/ui/web
     volumes:
-      - ./config:/app/config
-      - ./data:/app/data
-      - ./logs:/app/logs
-    environment:
-      - PYTHONUNBUFFERED=1
-    cap_add:
-      - SYS_ADMIN
-    security_opt:
-      - seccomp:unconfined
-    depends_on:
-      - mission-control
-
-  mission-control:
-    image: builderz-labs/mission-control:latest
-    container_name: mission-control
-    restart: unless-stopped
+      - ./temp_goclaw:/app
     ports:
-      - "${MISSION_CONTROL_PORT:-3001}:3000"
-    env_file:
-      - .env
-    volumes:
-      - ./data/mission-control:/app/data
+      - "8081:3000"
     environment:
-      - NEXTAUTH_URL=http://localhost:${MISSION_CONTROL_PORT:-3001}
-
-networks:
-  default:
-    name: openclaw-network
+      # These variables point your local UI to the cloud Render GPU/Agent
+      - VITE_BACKEND_HOST=goclaw-agent.onrender.com
+      - VITE_BACKEND_PORT=443
+      - VITE_BACKEND_PROTOCOL=https
+      - VITE_WS_URL=wss://goclaw-agent.onrender.com/ws
+    # Install pnpm, download packages, and start the development server
+    command: sh -c "npm install -g pnpm && pnpm install && pnpm dev --host 0.0.0.0 --port 3000"
