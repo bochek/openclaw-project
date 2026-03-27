@@ -11,6 +11,8 @@ services:
         fromDatabase:
           name: goclaw-db
           property: connectionString
+      - key: GOCLAW_AUTO_UPGRADE
+        value: "true"
       - key: TS_AUTHKEY
         sync: false # Set this in Render Dashboard (Secret)
       - key: TS_HOSTNAME
