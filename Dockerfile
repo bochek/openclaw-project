@@ -27,8 +27,10 @@ WORKDIR /app
 # Create directories for persistent storage and Tailscale runtime
 RUN mkdir -p /app/config /app/data /app/logs /app/scripts /var/run/tailscale /var/cache/tailscale /var/lib/tailscale /data
 
-# Copy the compiled GoClaw binary
+# Copy the compiled GoClaw binary and its database migrations
 COPY --from=builder /app/goclaw /usr/local/bin/goclaw
+COPY --from=builder /app/migrations /usr/local/bin/migrations
+
 
 # Copy local config and scripts
 COPY config/ /app/config/
