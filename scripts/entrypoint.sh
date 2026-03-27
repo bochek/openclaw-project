@@ -19,10 +19,9 @@ else
     echo "WARNING: TS_AUTHKEY not set. Tailscale will stay offline."
 fi
 
-# Start OpenClaw
+# Start GoClaw
 export PORT=${OPENCLAW_GATEWAY_PORT:-8080}
-echo "Starting OpenClaw on port $PORT..."
+echo "Starting GoClaw on port $PORT..."
 
-# Use the python module execution for the CLI directly
-echo "Executing: python3 -m openclaw.cli start --config /app/config/openclaw.json"
-exec python3 -m openclaw.cli start --config /app/config/openclaw.json
+# Execute the GoClaw binary (auto-onboards via GOCLAW_*_API_KEY env vars)
+exec /usr/local/bin/goclaw

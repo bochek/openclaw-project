@@ -1,32 +1,35 @@
 services:
   - type: web
-    name: openclaw-agent
+    name: goclaw-agent
     runtime: docker
-    plan: starter # Starter plan for Persistant Disk Support
+    plan: starter # Starter plan for Persistent Disk Support
     healthCheckPath: /health
     envVars:
       - key: OPENCLAW_GATEWAY_PORT
         value: "8080"
-      - key: OPENCLAW_STATE_DIR
-        value: /data/.openclaw
-      - key: OPENCLAW_WORKSPACE_DIR
-        value: /data/workspace
+      - key: GOCLAW_DATABASE_URL
+        fromDatabase:
+          name: goclaw-db
+          property: connectionString
       - key: TS_AUTHKEY
         sync: false # Set this in Render Dashboard (Secret)
       - key: TS_HOSTNAME
-        value: openclaw-render
-      # OpenRouter
-      - key: OPENROUTER_API_KEY
+        value: goclaw-render
+      # AI Provider (GoClaw specific environment variable)
+      - key: GOCLAW_OPENROUTER_API_KEY
         sync: false
-      # Together AI (Optional)
-      # - key: TOGETHER_API_KEY
-      #   sync: false
       # Telegram
       - key: TELEGRAM_BOT_TOKEN
         sync: false
       - key: TELEGRAM_CHAT_ID
         sync: false
     disk:
-      name: openclaw-data
+      name: goclaw-data
       mountPath: /data
       sizeGB: 1
+
+databases:
+  - name: goclaw-db
+    databaseName: goclaw
+    user: goclaw
+    plan: free
