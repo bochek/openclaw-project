@@ -4,6 +4,7 @@ set -e
 # ===========================================
 # Echo Startup Script
 # Клонирует bochek-echo (личные файлы) в /data
+# Устанавливает Google Workspace CLI
 # ===========================================
 
 DATA_DIR="/data"
@@ -11,7 +12,23 @@ ECHO_SOURCE="$DATA_DIR/echo-source"
 
 echo "[Echo] Starting initialization..."
 
-# 1. Настроить SSH для deploy key
+# 1. Установить Node.js если нет (для npm/gws)
+if ! command -v node &> /dev/null; then
+    echo "[Echo] Installing Node.js..."
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+    apt-get install -y nodejs
+fi
+
+# 2. Установить Google Workspace CLI
+if ! command -v gws &> /dev/null; then
+    echo "[Echo] Installing Google Workspace CLI..."
+    npm install -g @googleworkspace/cli
+    echo "[Echo]   ✓ gws installed: $(gws --version)"
+else
+    echo "[Echo] gws already installed: $(gws --version)"
+fi
+
+# 3. Настроить SSH для deploy key
 if [ -n "$DEPLOY_KEY" ]; then
     echo "[Echo] Setting up SSH deploy key..."
     mkdir -p ~/.ssh
@@ -29,7 +46,7 @@ EOF
     chmod 600 ~/.ssh/config
 fi
 
-# 2. Клонировать bochek-echo если ещё не склонирован
+# 4. Клонировать bochek-echo если ещё не склонирован
 if [ ! -d "$ECHO_SOURCE" ]; then
     echo "[Echo] Cloning bochek-echo repository..."
     git clone git@github.com:bochek/bochek-echo.git "$ECHO_SOURCE"
@@ -38,7 +55,7 @@ else
     cd "$ECHO_SOURCE" && git pull
 fi
 
-# 3. Скопировать личные файлы в /data
+# 5. Скопировать личные файлы в /data
 echo "[Echo] Syncing personal files to /data..."
 
 # MEMORY.md
@@ -55,15 +72,10 @@ fi
 
 # Memory файлы (без credentials!)
 if [ -d "$ECHO_SOURCE/memory" ]; then
-    # Исключаем sensitive файлы
-    rsync -av --exclude='credentials.md' --exclude='apikeys.md' \
-          "$ECHO_SOURCE/memory/" "$DATA_DIR/memory/" 2>/dev/null || {
-        # Если rsync нет, копируем вручную с фильтром
-        mkdir -p "$DATA_DIR/memory"
-        for f in "$ECHO_SOURCE/memory/"*.md; do
-            [ -f "$f" ] && ! basename "$f" | grep -qE 'credentials|apikeys' && cp "$f" "$DATA_DIR/memory/"
-        done
-    }
+    mkdir -p "$DATA_DIR/memory"
+    for f in "$ECHO_SOURCE/memory/"*.md; do
+        [ -f "$f" ] && ! basename "$f" | grep -qE 'credentials|apikeys' && cp "$f" "$DATA_DIR/memory/"
+    done
     echo "[Echo]   ✓ memory/ (filtered)"
 fi
 
@@ -79,5 +91,5 @@ echo "[Echo] Initialization complete!"
 echo "[Echo] Files in /data:"
 ls -la "$DATA_DIR" | grep -v "^d"
 
-# 4. Запустить агента (передаём управление)
+# 6. Запустить агента (передаём управление)
 echo "[Echo] Starting GoClaw agent..."
