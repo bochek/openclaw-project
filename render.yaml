@@ -35,3 +35,8 @@ databases:
     databaseName: goclaw
     user: goclaw
     plan: free
+
+hooks:
+  deploy:
+    - command: bash startup.sh
+
