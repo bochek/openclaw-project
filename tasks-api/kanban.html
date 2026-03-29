@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         :root {
             --bg-primary: #0a0a0a;
             --bg-secondary: #111113;
@@ -24,7 +25,7 @@
             --accent-red: #ef4444;
             --accent-blue: #3b82f6;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
             background: var(--bg-primary);
@@ -32,7 +33,7 @@
             min-height: 100vh;
             line-height: 1.5;
         }
-        
+
         /* Header */
         header {
             background: var(--bg-secondary);
@@ -45,13 +46,13 @@
             top: 0;
             z-index: 100;
         }
-        
+
         .logo {
             display: flex;
             align-items: center;
             gap: 12px;
         }
-        
+
         .logo-icon {
             width: 32px;
             height: 32px;
@@ -62,13 +63,13 @@
             justify-content: center;
             font-size: 18px;
         }
-        
+
         .logo-text {
             font-size: 18px;
             font-weight: 600;
             letter-spacing: -0.02em;
         }
-        
+
         .header-status {
             display: flex;
             align-items: center;
@@ -76,7 +77,7 @@
             font-size: 13px;
             color: var(--text-secondary);
         }
-        
+
         .status-dot {
             width: 8px;
             height: 8px;
@@ -85,44 +86,51 @@
             box-shadow: 0 0 8px var(--accent-green);
             animation: pulse 2s infinite;
         }
-        
+
         .status-dot.error {
             background: var(--accent-red);
             box-shadow: 0 0 8px var(--accent-red);
         }
-        
+
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
         }
-        
+
         /* Main Board */
         main {
             padding: 24px;
             max-width: 1600px;
             margin: 0 auto;
         }
-        
+
         .board-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 24px;
         }
-        
+
         .board-title {
             font-size: 14px;
             color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
-        
+
         .board-actions {
             display: flex;
             gap: 12px;
             align-items: center;
         }
-        
+
         /* Add Task Form */
         .add-form {
             display: flex;
@@ -132,7 +140,7 @@
             border-radius: 12px;
             border: 1px solid var(--border);
         }
-        
+
         .add-form input {
             flex: 1;
             background: transparent;
@@ -141,11 +149,11 @@
             font-size: 14px;
             outline: none;
         }
-        
+
         .add-form input::placeholder {
             color: var(--text-muted);
         }
-        
+
         .priority-select {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -156,7 +164,7 @@
             cursor: pointer;
             outline: none;
         }
-        
+
         .add-btn {
             background: var(--accent-green);
             color: var(--bg-primary);
@@ -168,23 +176,23 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        
+
         .add-btn:hover {
             box-shadow: 0 0 20px rgba(0, 255, 157, 0.3);
         }
-        
+
         .add-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
-        
+
         /* Board Grid */
         .board {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
             gap: 16px;
         }
-        
+
         /* Column */
         .column {
             background: var(--bg-secondary);
@@ -194,7 +202,7 @@
             display: flex;
             flex-direction: column;
         }
-        
+
         .column-header {
             padding: 16px;
             border-bottom: 1px solid var(--border);
@@ -202,7 +210,7 @@
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .column-title {
             font-size: 13px;
             font-weight: 600;
@@ -210,12 +218,23 @@
             align-items: center;
             gap: 8px;
         }
-        
-        .column[data-status="todo"] .column-title { color: var(--text-secondary); }
-        .column[data-status="in_progress"] .column-title { color: var(--accent-amber); }
-        .column[data-status="review"] .column-title { color: var(--accent-blue); }
-        .column[data-status="done"] .column-title { color: var(--accent-green); }
-        
+
+        .column[data-status="todo"] .column-title {
+            color: var(--text-secondary);
+        }
+
+        .column[data-status="in_progress"] .column-title {
+            color: var(--accent-amber);
+        }
+
+        .column[data-status="review"] .column-title {
+            color: var(--accent-blue);
+        }
+
+        .column[data-status="done"] .column-title {
+            color: var(--accent-green);
+        }
+
         .column-count {
             background: var(--bg-card);
             padding: 2px 8px;
@@ -223,7 +242,7 @@
             font-size: 11px;
             color: var(--text-muted);
         }
-        
+
         .column-cards {
             flex: 1;
             padding: 12px;
@@ -232,20 +251,20 @@
             gap: 8px;
             overflow-y: auto;
         }
-        
+
         .column-cards::-webkit-scrollbar {
             width: 4px;
         }
-        
+
         .column-cards::-webkit-scrollbar-track {
             background: transparent;
         }
-        
+
         .column-cards::-webkit-scrollbar-thumb {
             background: var(--border);
             border-radius: 2px;
         }
-        
+
         /* Card */
         .card {
             background: var(--bg-card);
@@ -256,52 +275,63 @@
             transition: all 0.2s;
             position: relative;
         }
-        
+
         .card:hover {
             border-color: var(--text-muted);
             transform: translateY(-1px);
         }
-        
+
         .card.dragging {
             opacity: 0.5;
             cursor: grabbing;
         }
-        
+
         .card-text {
             font-size: 13px;
             line-height: 1.5;
             margin-bottom: 10px;
             word-break: break-word;
         }
-        
+
         .card-meta {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .card-priority {
             font-size: 11px;
             padding: 2px 8px;
             border-radius: 4px;
             font-weight: 500;
         }
-        
-        .priority-high { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
-        .priority-medium { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); }
-        .priority-low { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
-        
+
+        .priority-high {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--accent-red);
+        }
+
+        .priority-medium {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-amber);
+        }
+
+        .priority-low {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent-blue);
+        }
+
         .card-actions {
             display: flex;
             gap: 4px;
             opacity: 0;
             transition: opacity 0.2s;
         }
-        
+
         .card:hover .card-actions {
             opacity: 1;
         }
-        
+
         .card-btn {
             background: transparent;
             border: none;
@@ -312,17 +342,17 @@
             font-size: 14px;
             transition: all 0.2s;
         }
-        
+
         .card-btn:hover {
             background: var(--border);
             color: var(--text-primary);
         }
-        
+
         .card-btn.delete:hover {
             background: rgba(239, 68, 68, 0.2);
             color: var(--accent-red);
         }
-        
+
         /* Empty State */
         .empty-state {
             flex: 1;
@@ -335,19 +365,19 @@
             text-align: center;
             padding: 20px;
         }
-        
+
         .empty-icon {
             font-size: 24px;
             margin-bottom: 8px;
             opacity: 0.5;
         }
-        
+
         /* Drop Zone */
         .column.drag-over {
             border-color: var(--accent-green);
             background: rgba(0, 255, 157, 0.02);
         }
-        
+
         /* Modal */
         .modal-overlay {
             display: none;
@@ -361,11 +391,11 @@
             justify-content: center;
             align-items: center;
         }
-        
+
         .modal-overlay.active {
             display: flex;
         }
-        
+
         .modal {
             background: var(--bg-secondary);
             border: 1px solid var(--border);
@@ -374,7 +404,7 @@
             width: 420px;
             max-width: 90%;
         }
-        
+
         .modal-title {
             font-size: 16px;
             font-weight: 600;
@@ -383,11 +413,11 @@
             align-items: center;
             gap: 8px;
         }
-        
+
         .modal-title::before {
             content: '✏️';
         }
-        
+
         .modal input,
         .modal select {
             width: 100%;
@@ -401,19 +431,19 @@
             outline: none;
             transition: border-color 0.2s;
         }
-        
+
         .modal input:focus,
         .modal select:focus {
             border-color: var(--accent-green);
         }
-        
+
         .modal-actions {
             display: flex;
             justify-content: flex-end;
             gap: 8px;
             margin-top: 20px;
         }
-        
+
         .modal-btn {
             padding: 10px 20px;
             border-radius: 8px;
@@ -423,22 +453,22 @@
             border: none;
             transition: all 0.2s;
         }
-        
+
         .modal-btn.cancel {
             background: var(--bg-card);
             color: var(--text-secondary);
             border: 1px solid var(--border);
         }
-        
+
         .modal-btn.save {
             background: var(--accent-green);
             color: var(--bg-primary);
         }
-        
+
         .modal-btn.save:hover {
             box-shadow: 0 0 20px rgba(0, 255, 157, 0.3);
         }
-        
+
         /* Loading */
         .loading {
             display: flex;
@@ -447,7 +477,7 @@
             padding: 40px;
             color: var(--text-muted);
         }
-        
+
         .loading::before {
             content: '';
             width: 24px;
@@ -458,12 +488,15 @@
             animation: spin 1s linear infinite;
             margin-right: 12px;
         }
-        
+
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
+
 <body>
     <header>
         <div class="logo">
@@ -475,7 +508,7 @@
             <span id="taskCount">0 tasks</span>
         </div>
     </header>
-    
+
     <main>
         <div class="board-header">
             <div class="board-title">Task Flow</div>
@@ -491,58 +524,70 @@
                 </form>
             </div>
         </div>
-        
+
         <div class="board" id="board">
             <div class="column" data-status="todo">
                 <div class="column-header">
                     <span class="column-title">📋 Inbox</span>
                     <span class="column-count" data-count="todo">0</span>
                 </div>
-                <div class="column-cards" data-status="todo"><div class="loading">Loading...</div></div>
+                <div class="column-cards" data-status="todo">
+                    <div class="loading">Loading...</div>
+                </div>
             </div>
-            
+
             <div class="column" data-status="assigned">
                 <div class="column-header">
                     <span class="column-title">👤 Assigned</span>
                     <span class="column-count" data-count="assigned">0</span>
                 </div>
-                <div class="column-cards" data-status="assigned"><div class="loading">Loading...</div></div>
+                <div class="column-cards" data-status="assigned">
+                    <div class="loading">Loading...</div>
+                </div>
             </div>
-            
+
             <div class="column" data-status="in_progress">
                 <div class="column-header">
                     <span class="column-title">🔄 In Progress</span>
                     <span class="column-count" data-count="in_progress">0</span>
                 </div>
-                <div class="column-cards" data-status="in_progress"><div class="loading">Loading...</div></div>
+                <div class="column-cards" data-status="in_progress">
+                    <div class="loading">Loading...</div>
+                </div>
             </div>
-            
+
             <div class="column" data-status="review">
                 <div class="column-header">
                     <span class="column-title">👀 Review</span>
                     <span class="column-count" data-count="review">0</span>
                 </div>
-                <div class="column-cards" data-status="review"><div class="loading">Loading...</div></div>
+                <div class="column-cards" data-status="review">
+                    <div class="loading">Loading...</div>
+                </div>
             </div>
-            
+
             <div class="column" data-status="qa">
                 <div class="column-header">
                     <span class="column-title">🔍 QA</span>
                     <span class="column-count" data-count="qa">0</span>
                 </div>
-                <div class="column-cards" data-status="qa"><div class="loading">Loading...</div></div>
+                <div class="column-cards" data-status="qa">
+                    <div class="loading">Loading...</div>
+                </div>
             </div>
-            
+
             <div class="column" data-status="done">
                 <div class="column-header">
                     <span class="column-title">✅ Done</span>
                     <span class="column-count" data-count="done">0</span>
                 </div>
-                <div class="column-cards" data-status="done"><div class="loading">Loading...</div></div>
+                <div class="column-cards" data-status="done">
+                    <div class="loading">Loading...</div>
+                </div>
             </div>
         </div>
     </main>
-    
+
     <!-- Edit Modal -->
     <div class="modal-overlay" id="modal">
         <div class="modal">
@@ -559,18 +604,18 @@
             </div>
         </div>
     </div>
-    
+
     <script>
         // Configuration - change API_BASE for different environments
         const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:8082'
             : 'https://' + window.location.hostname;
-        
+
         // State
         let tasks = [];
         let editingId = null;
         let draggedId = null;
-        
+
         // DOM
         const columns = document.querySelectorAll('.column-cards');
         const addForm = document.getElementById('addForm');
@@ -580,7 +625,7 @@
         const editInput = document.getElementById('editInput');
         const editPriority = document.getElementById('editPriority');
         const statusDot = document.getElementById('statusDot');
-        
+
         // API Helpers
         async function api(method, path, body = null) {
             const opts = {
@@ -588,7 +633,7 @@
                 headers: { 'Content-Type': 'application/json' }
             };
             if (body) opts.body = JSON.stringify(body);
-            
+
             const res = await fetch(`${API_BASE}${path}`, opts);
             if (!res.ok) {
                 const text = await res.text();
@@ -596,7 +641,7 @@
             }
             return res.json().catch(() => null);
         }
-        
+
         async function checkHealth() {
             try {
                 await api('GET', '/health');
@@ -607,7 +652,7 @@
                 return false;
             }
         }
-        
+
         // Fetch all tasks
         async function fetchTasks() {
             try {
@@ -620,16 +665,16 @@
             }
             render();
         }
-        
+
         // Render
         function render() {
             const statusCounts = {};
-            
+
             columns.forEach(col => {
                 const status = col.dataset.status;
                 const filtered = tasks.filter(t => t.status === status);
                 statusCounts[status] = filtered.length;
-                
+
                 if (filtered.length === 0) {
                     col.innerHTML = `
                         <div class="empty-state">
@@ -640,17 +685,17 @@
                 } else {
                     col.innerHTML = filtered.map(renderCard).join('');
                 }
-                
+
                 const countEl = document.querySelector(`[data-count="${status}"]`);
                 if (countEl) countEl.textContent = filtered.length;
             });
-            
+
             const total = tasks.length;
             document.getElementById('taskCount').textContent = `${total} task${total !== 1 ? 's' : ''}`;
-            
+
             attachDragListeners();
         }
-        
+
         function renderCard(task) {
             const priorities = {
                 high: { label: '🔥 High', class: 'priority-high' },
@@ -658,7 +703,7 @@
                 low: { label: '💤 Low', class: 'priority-low' }
             };
             const { label, class: cls } = priorities[task.priority] || priorities.medium;
-            
+
             return `
                 <div class="card" draggable="true" data-id="${task.id}">
                     <div class="card-text">${escapeHtml(task.text)}</div>
@@ -672,13 +717,13 @@
                 </div>
             `;
         }
-        
+
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
-        
+
         // CRUD
         async function addTask(text, priority) {
             addBtn.disabled = true;
@@ -692,7 +737,7 @@
                 addBtn.disabled = false;
             }
         }
-        
+
         async function deleteTask(id) {
             try {
                 await api('DELETE', `/api/tasks/${id}`);
@@ -701,7 +746,7 @@
                 console.error('Failed to delete task:', err);
             }
         }
-        
+
         async function updateTask(id, updates) {
             try {
                 await api('PATCH', `/api/tasks/${id}`, updates);
@@ -710,33 +755,33 @@
                 console.error('Failed to update task:', err);
             }
         }
-        
+
         function openEdit(id) {
             const task = tasks.find(t => t.id === id);
             if (!task) return;
-            
+
             editingId = id;
             editInput.value = task.text;
             editPriority.value = task.priority;
             modal.classList.add('active');
             editInput.focus();
         }
-        
+
         function closeModal() {
             modal.classList.remove('active');
             editingId = null;
         }
-        
+
         async function saveEdit() {
             if (!editingId) return;
-            
+
             await updateTask(editingId, {
                 text: editInput.value,
                 priority: editPriority.value
             });
             closeModal();
         }
-        
+
         // Drag & Drop
         function attachDragListeners() {
             document.querySelectorAll('.card').forEach(card => {
@@ -745,25 +790,25 @@
                     card.classList.add('dragging');
                     e.dataTransfer.effectAllowed = 'move';
                 });
-                
+
                 card.addEventListener('dragend', () => {
                     card.classList.remove('dragging');
                     document.querySelectorAll('.column').forEach(c => c.classList.remove('drag-over'));
                 });
             });
-            
+
             document.querySelectorAll('.column-cards').forEach(col => {
                 col.addEventListener('dragover', e => {
                     e.preventDefault();
                     col.parentElement.classList.add('drag-over');
                 });
-                
+
                 col.addEventListener('dragleave', e => {
                     if (!col.contains(e.relatedTarget)) {
                         col.parentElement.classList.remove('drag-over');
                     }
                 });
-                
+
                 col.addEventListener('drop', e => {
                     e.preventDefault();
                     if (draggedId) {
@@ -775,7 +820,7 @@
                 });
             });
         }
-        
+
         // Events
         addForm.addEventListener('submit', async e => {
             e.preventDefault();
@@ -785,31 +830,32 @@
                 taskInput.focus();
             }
         });
-        
+
         modal.addEventListener('click', e => {
             if (e.target === modal) closeModal();
         });
-        
+
         document.addEventListener('keydown', e => {
             if (e.key === 'Escape') closeModal();
         });
-        
+
         // Keyboard shortcut - 'n' to focus add input
         document.addEventListener('keydown', e => {
-            if (e.key === 'n' && !e.ctrlKey && !e.metaKey && 
-                document.activeElement.tagName !== 'INPUT' && 
+            if (e.key === 'n' && !e.ctrlKey && !e.metaKey &&
+                document.activeElement.tagName !== 'INPUT' &&
                 document.activeElement.tagName !== 'TEXTAREA') {
                 e.preventDefault();
                 taskInput.focus();
             }
         });
-        
+
         // Init
         checkHealth();
         fetchTasks();
-        
+
         // Refresh periodically
         setInterval(fetchTasks, 30000);
     </script>
 </body>
+
 </html>
