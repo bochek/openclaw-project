@@ -24,11 +24,7 @@ services:
     ports:
       - "8082:8082"
     environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_NAME=goclaw
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/goclaw?sslmode=disable
       - PORT=8082
     depends_on:
       postgres:
@@ -40,9 +36,23 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./kanban.html:/usr/share/nginx/html/index.html:ro
+      - ./tasks-api/kanban.html:/usr/share/nginx/html/index.html:ro
     depends_on:
       - tasks-api
+
+  local-mcp:
+    build:
+      context: ./local_mcp
+    container_name: local-mcp
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./local_mcp/chroma_db:/app/chroma_db
+    environment:
+      - OLLAMA_URL=http://host.docker.internal:11434
+      - EMBEDDING_MODEL=qwen3-embedding
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 volumes:
   postgres_data:
