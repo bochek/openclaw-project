@@ -2,6 +2,8 @@ services:
   - type: web
     name: goclaw-agent
     runtime: docker
+    dockerContext: temp_goclaw
+    dockerfilePath: Dockerfile
     plan: starter # Starter plan for Persistent Disk Support
     healthCheckPath: /health
     envVars:
