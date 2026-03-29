@@ -2,7 +2,7 @@
 FROM golang:1.21-alpine AS builder
 RUN apk add --no-cache git
 WORKDIR /build
-COPY tasks-api/go.mod .
+COPY tasks-api/go.mod tasks-api/go.sum ./
 RUN go mod download
 COPY tasks-api/main.go .
 RUN CGO_ENABLED=0 GOOS=linux go build -o tasks-api .

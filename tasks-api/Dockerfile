@@ -2,9 +2,9 @@
 FROM golang:1.21-alpine AS builder
 RUN apk add --no-cache git
 WORKDIR /app
-COPY go.mod ./
+COPY go.mod go.sum ./
+RUN go mod download
 COPY main.go ./
-RUN go mod tidy
 RUN CGO_ENABLED=0 GOOS=linux go build -o tasks-api main.go
 
 FROM alpine:3.19
