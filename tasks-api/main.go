@@ -79,9 +79,9 @@ func main() {
 	}
 
 	// Routes
-	http.HandleFunc("/health", healthHandler)
-	http.HandleFunc("/api/tasks", tasksHandler)
-	http.HandleFunc("/api/tasks/", taskByIDHandler)
+	http.HandleFunc("/health", corsMiddleware(healthHandler))
+	http.HandleFunc("/api/tasks", corsMiddleware(tasksHandler))
+	http.HandleFunc("/api/tasks/", corsMiddleware(taskByIDHandler))
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -93,6 +93,19 @@ func main() {
 
 	log.Printf("Tasks API listening on :%s", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
+}
+
+func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		next(w, r)
+	}
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
