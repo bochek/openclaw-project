@@ -32,8 +32,9 @@ WORKDIR /app
 # Create directories for persistent storage and Tailscale runtime
 RUN mkdir -p /app/config /app/data /app/logs /app/scripts /var/run/tailscale /var/cache/tailscale /var/lib/tailscale /data
 
-# Copy built binary from builder stage
+# Copy built binary and migrations from builder stage
 COPY --from=builder /app/goclaw /usr/local/bin/goclaw
+COPY --from=builder /app/migrations /usr/local/bin/migrations/
 RUN chmod +x /usr/local/bin/goclaw
 
 # Copy the entrypoint script
