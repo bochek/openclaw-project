@@ -33,7 +33,7 @@ WORKDIR /app
 RUN mkdir -p /app/config /app/data /app/logs /app/scripts /var/run/tailscale /var/cache/tailscale /var/lib/tailscale /data
 
 # Copy built binary from builder stage
-COPY --from=builder /app/bin/goclaw /usr/local/bin/goclaw
+COPY --from=builder /app/goclaw /usr/local/bin/goclaw
 RUN chmod +x /usr/local/bin/goclaw
 
 # Copy the entrypoint script
