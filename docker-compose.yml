@@ -1,17 +1,48 @@
 services:
-  goclaw-ui:
-    image: node:22-alpine
-    container_name: goclaw-ui
-    working_dir: /app/ui/web
-    volumes:
-      - ./temp_goclaw:/app
-    ports:
-      - "8081:3000"
+  postgres:
+    image: postgres:16-alpine
+    container_name: tasks-postgres
     environment:
-      # These variables point your local UI to the cloud Render GPU/Agent
-      - VITE_BACKEND_HOST=goclaw-agent.onrender.com
-      - VITE_BACKEND_PORT=443
-      - VITE_BACKEND_PROTOCOL=https
-      - VITE_WS_URL=wss://goclaw-agent.onrender.com/ws
-    # Install pnpm, download packages, and start the development server
-    command: sh -c "npm install -g pnpm && pnpm install && pnpm dev --host 0.0.0.0 --port 3000"
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=goclaw
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  tasks-api:
+    build:
+      context: ./tasks-api
+      dockerfile: Dockerfile
+    container_name: tasks-api
+    ports:
+      - "8082:8082"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=goclaw
+      - PORT=8082
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  kanban:
+    image: nginx:alpine
+    container_name: kanban-ui
+    ports:
+      - "8080:80"
+    volumes:
+      - ./kanban.html:/usr/share/nginx/html/index.html:ro
+    depends_on:
+      - tasks-api
+
+volumes:
+  postgres_data:
