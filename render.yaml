@@ -2,14 +2,16 @@ services:
   - type: web
     name: goclaw-agent
     runtime: docker
-    dockerContext: temp_goclaw
-    dockerfilePath: Dockerfile
     plan: starter # Starter plan for Persistent Disk Support
     healthCheckPath: /health
     envVars:
       - key: OPENCLAW_GATEWAY_PORT
         value: "8080"
       - key: GOCLAW_POSTGRES_DSN
+        fromDatabase:
+          name: goclaw-db
+          property: connectionString
+      - key: DATABASE_URL
         fromDatabase:
           name: goclaw-db
           property: connectionString

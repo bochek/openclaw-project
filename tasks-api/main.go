@@ -40,13 +40,17 @@ type UpdateTaskReq struct {
 func main() {
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
+		dsn = os.Getenv("GOCLAW_POSTGRES_DSN")
+	}
+	if dsn == "" {
+		log.Println("WARNING: DATABASE_URL and GOCLAW_POSTGRES_DSN are empty. Falling back to localhost.")
 		dsn = "postgres://goclaw:goclaw@localhost:5432/goclaw?sslmode=disable"
 	}
 
 	var err error
 	db, err = sql.Open("postgres", dsn)
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+		log.Fatalf("Failed to open database connection: %v", err)
 	}
 	defer db.Close()
 
@@ -55,7 +59,7 @@ func main() {
 	db.SetConnMaxLifetime(5 * time.Minute)
 
 	if err := db.Ping(); err != nil {
-		log.Fatalf("Failed to ping database: %v", err)
+		log.Fatalf("Failed to ping database (check your DATABASE_URL env var on Render): %v", err)
 	}
 
 	log.Println("Connected to PostgreSQL")
@@ -81,7 +85,10 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8082"
+		port = os.Getenv("GOCLAW_GATEWAY_PORT")
+	}
+	if port == "" {
+		port = "8080"
 	}
 
 	log.Printf("Tasks API listening on :%s", port)
