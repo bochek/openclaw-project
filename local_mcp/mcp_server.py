@@ -3,11 +3,14 @@ import base64
 import json
 import requests
 import chromadb
+import tempfile
+import os
 from mcp.server import Server
 from mcp.types import Tool, TextContent, ImageContent, EmbeddedResource
 from typing import List, Optional
 from starlette.applications import Starlette
 from starlette.routing import Route
+from faster_whisper import WhisperModel
 import uvicorn
 from mcp.server.sse import SseServerTransport
 
@@ -17,10 +20,15 @@ mcp = Server("MemoryAudioServer")
 CHROMA_PATH = "./chroma_db"
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://host.docker.internal:11434")
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "qwen3-embedding")
+WHISPER_MODEL_SIZE = os.getenv("WHISPER_MODEL_SIZE", "base")
 
 # Initialize ChromaDB
 client = chromadb.PersistentClient(path=CHROMA_PATH)
 collection = client.get_or_create_collection(name="agent_memory")
+
+# Initialize WhisperModel
+print(f"Loading WhisperModel: {WHISPER_MODEL_SIZE} on CPU (int8)...")
+whisper_model = WhisperModel(WHISPER_MODEL_SIZE, device="cpu", compute_type="int8")
 
 @mcp.list_tools()
 async def list_tools() -> List[Tool]:
@@ -106,7 +114,20 @@ async def call_tool(name: str, arguments: dict):
         return [TextContent(type="text", text="Found relevant memories:\n" + "\n".join(memories))]
 
     elif name == "transcribe_audio":
-        return [TextContent(type="text", text="[STT STUB] This tool would now process the base64 content via local Whisper. Please ensure whisper-cli or faster-whisper is installed on the host.")]
+        try:
+            audio_data = base64.b64decode(arguments["content_base64"])
+            ext = arguments.get("format", "ogg")
+            with tempfile.NamedTemporaryFile(suffix=f".{ext}", delete=False) as tmp:
+                tmp.write(audio_data)
+                tmp_path = tmp.name
+
+            segments, _ = whisper_model.transcribe(tmp_path)
+            text = "".join(segment.text for segment in segments)
+            
+            os.remove(tmp_path)
+            return [TextContent(type="text", text=text.strip())]
+        except Exception as e:
+            return [TextContent(type="text", text=f"Transcription failed: {str(e)}")]
 
     raise ValueError(f"Unknown tool: {name}")
 

@@ -3,4 +3,4 @@ chromadb
 uvicorn
 fastapi
 requests
-# faster-whisper  # Uncomment if CUDA/CPU resources are available locally
+faster-whisper

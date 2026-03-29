@@ -51,8 +51,17 @@ services:
     environment:
       - OLLAMA_URL=http://host.docker.internal:11434
       - EMBEDDING_MODEL=qwen3-embedding
+      - WHISPER_MODEL_SIZE=base
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+  context7:
+    image: ghcr.io/open-webui/mcpo:git-788ff92
+    container_name: context7
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    command: ["npx", "-y", "@upstash/context7-mcp"]
 
 volumes:
   postgres_data:

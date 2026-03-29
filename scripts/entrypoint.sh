@@ -21,6 +21,11 @@ fi
 
 # Start GoClaw
 export PORT=${OPENCLAW_GATEWAY_PORT:-8080}
+# Route all outbound traffic into the Tailscale SOCKS5 proxy!
+export ALL_PROXY="socks5://localhost:1055"
+export HTTP_PROXY="socks5://localhost:1055"
+export HTTPS_PROXY="socks5://localhost:1055"
+
 echo "Starting GoClaw on port $PORT..."
 
 # Execute the GoClaw binary (auto-onboards via GOCLAW_*_API_KEY env vars)
