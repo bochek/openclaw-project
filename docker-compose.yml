@@ -45,7 +45,7 @@ services:
       context: ./local_mcp
     container_name: local-mcp
     ports:
-      - "8000:8000"
+      - "8005:8000"
     volumes:
       - ./local_mcp/chroma_db:/app/chroma_db
     environment:

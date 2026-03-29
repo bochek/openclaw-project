@@ -3,15 +3,14 @@ import base64
 import json
 import requests
 import chromadb
-from mcp.server.fastapi import Context
 from mcp.server import Server
 from mcp.types import Tool, TextContent, ImageContent, EmbeddedResource
 from typing import List, Optional
+from starlette.applications import Starlette
+from starlette.routing import Route
 import uvicorn
-from fastapi import FastAPI
 from mcp.server.sse import SseServerTransport
 
-app = FastAPI()
 mcp = Server("MemoryAudioServer")
 
 # Configuration
@@ -107,24 +106,29 @@ async def call_tool(name: str, arguments: dict):
         return [TextContent(type="text", text="Found relevant memories:\n" + "\n".join(memories))]
 
     elif name == "transcribe_audio":
-        # Note: In a real scenario, we'd use whisper here.
-        # For now, we'll provide a placeholder or use an external API if configured.
-        # Since I can't bundle faster-whisper easily without long wait,
-        # I'll mention it needs a local whisper service or I can implement with a library later.
         return [TextContent(type="text", text="[STT STUB] This tool would now process the base64 content via local Whisper. Please ensure whisper-cli or faster-whisper is installed on the host.")]
 
     raise ValueError(f"Unknown tool: {name}")
 
 sse = SseServerTransport("/messages")
 
-@app.get("/sse")
-async def handle_sse():
-    async with sse.connect_sse() as (read_stream, write_stream):
-        await mcp.run(read_stream, write_stream, mcp.create_initialization_options())
+async def handle_sse(request):
+    async with sse.connect_sse(
+        request.scope, request.receive, request._send
+    ) as streams:
+        await mcp.run(
+            streams[0], streams[1], mcp.create_initialization_options()
+        )
 
-@app.post("/messages")
-async def handle_messages():
-    await sse.handle_post_request()
+async def handle_messages(request):
+    await sse.handle_post_message(
+        request.scope, request.receive, request._send
+    )
+
+app = Starlette(routes=[
+    Route("/sse", endpoint=handle_sse),
+    Route("/messages", endpoint=handle_messages, methods=["POST"]),
+])
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
