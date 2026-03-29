@@ -38,7 +38,7 @@ services:
     name: tasks-api
     runtime: docker
     dockerContext: ./tasks-api
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: ./tasks-api/Dockerfile
     plan: free
     healthCheckPath: /health
     envVars:
