@@ -56,12 +56,39 @@ services:
       - "host.docker.internal:host-gateway"
 
   context7:
-    image: ghcr.io/open-webui/mcpo:git-788ff92
+    image: node:22-alpine
     container_name: context7
     restart: unless-stopped
     ports:
-      - "8001:8000"
-    command: ["npx", "-y", "@upstash/context7-mcp"]
+      - "9001:8000"
+    environment:
+      - HOST=0.0.0.0
+    command: >
+      npx -y @upstash/context7-mcp --transport http --port 8000
+
+  mcp-docker:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-docker
+    restart: unless-stopped
+    ports:
+      - "8002:8000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: ["--port", "8000", "--host", "0.0.0.0", "--", "npx", "-y", "@modelcontextprotocol/server-docker"]
+
+  mcp-github:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: mcp-github
+    restart: unless-stopped
+    ports:
+      - "8003:8000"
+    environment:
+      - GITHUB_PERSONAL_ACCESS_TOKEN=${GITHUB_TOKEN}
+    command: ["--port", "8000", "--host", "0.0.0.0", "--", "npx", "-y", "@modelcontextprotocol/server-github"]
 
 volumes:
   postgres_data:
