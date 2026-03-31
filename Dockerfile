@@ -1,20 +1,24 @@
 # Stage 1: Build GoClaw from source
-FROM golang:alpine AS builder
+FROM golang:1.21-alpine AS builder
 RUN apk add --no-cache git make
 WORKDIR /app
-# COPY current directory instead of cloning from GitHub to include local changes
+# COPY current directory
 COPY . .
-# Build from temp_goclaw if it exists, otherwise build from root.
-# We ensure the binary is named 'goclaw' and migrations are in 'migrations' dir for Stage 2.
-RUN if [ -d "temp_goclaw" ]; then \
+
+# Find where go.mod is and build from there
+RUN if [ -f "temp_goclaw/go.mod" ]; then \
+        echo "Building from temp_goclaw..." && \
         cd temp_goclaw && \
-        go mod download && \
         go build -o /app/goclaw . && \
-        cp -r migrations /app/migrations; \
+        if [ -d "migrations" ]; then cp -r migrations /app/migrations; fi; \
+    elif [ -f "go.mod" ]; then \
+        echo "Building from root..." && \
+        go build -o /app/goclaw . && \
+        if [ -d "migrations" ]; then cp -r migrations /app/migrations; fi; \
     else \
-        go mod download && \
-        go build -o /app/goclaw . && \
-        cp -r migrations /app/migrations; \
+        echo "ERROR: go.mod not found in /app or /app/temp_goclaw" && \
+        ls -R /app && \
+        exit 1; \
     fi
 
 # Stage 2: Final Operational Image
