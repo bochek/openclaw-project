@@ -1,0 +1,19 @@
+﻿{
+  "agents": {
+    "defaults": {
+      "provider": "openrouter",
+      "model": "openrouter/meta-llama/Llama-3-70b-chat-hf"
+    }
+  },
+  "gateway": {
+    "port": 8080
+  },
+  "tools": {
+    "mcp_servers": {
+      "mjs-mcp": {
+        "transport": "sse",
+        "url": "https://bochekpc-1.tail45774e.ts.net/sse"
+      }
+    }
+  }
+}

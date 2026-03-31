@@ -1,0 +1,154 @@
+package pg
+
+import (
+	"context"
+	"fmt"
+	"log/slog"
+
+	"github.com/google/uuid"
+
+	"github.com/nextlevelbuilder/goclaw/internal/store"
+)
+
+// SetEmbeddingProvider sets the embedding provider for vector-based skill search.
+func (s *PGSkillStore) SetEmbeddingProvider(provider store.EmbeddingProvider) {
+	s.embProvider = provider
+}
+
+// SearchByEmbedding performs vector similarity search over skills using pgvector cosine distance.
+func (s *PGSkillStore) SearchByEmbedding(ctx context.Context, embedding []float32, limit int) ([]store.SkillSearchResult, error) {
+	if limit <= 0 {
+		limit = 5
+	}
+	vecStr := vectorToString(embedding)
+
+	// $1=vec, $2=vec → tenant at $3 (if needed), ORDER vec at $3+len(tcArgs), LIMIT after
+	tc, tcArgs, _, err := scopeClause(ctx, 3)
+	if err != nil {
+		return nil, err
+	}
+	tenantCond := ""
+	if tc != "" {
+		tenantCond = fmt.Sprintf(" AND (is_system = true OR tenant_id = $%d)", 3)
+	}
+	orderN := 3 + len(tcArgs)
+	limitN := orderN + 1
+	q := fmt.Sprintf(`SELECT name, slug, COALESCE(description, ''), version, file_path,
+			1 - (embedding <=> $1::vector) AS score
+		FROM skills
+		WHERE status = 'active' AND enabled = true AND embedding IS NOT NULL
+		  AND visibility != 'private'%s
+		ORDER BY embedding <=> $%d::vector
+		LIMIT $%d`, tenantCond, orderN, limitN)
+
+	rows, err := s.db.QueryContext(ctx, q,
+		append(append([]any{vecStr}, tcArgs...), vecStr, limit)...,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("embedding skill search: %w", err)
+	}
+	defer rows.Close()
+
+	var results []store.SkillSearchResult
+	for rows.Next() {
+		var r store.SkillSearchResult
+		var version int
+		var filePath *string
+		if err := rows.Scan(&r.Name, &r.Slug, &r.Description, &version, &filePath, &r.Score); err != nil {
+			continue
+		}
+		// Use DB file_path when available; fall back to baseDir construction.
+		if filePath != nil && *filePath != "" {
+			r.Path = *filePath + "/SKILL.md"
+		} else {
+			r.Path = fmt.Sprintf("%s/%s/%d/SKILL.md", s.baseDir, r.Slug, version)
+		}
+		results = append(results, r)
+	}
+	return results, nil
+}
+
+// BackfillSkillEmbeddings generates embeddings for all active skills that don't have one yet.
+func (s *PGSkillStore) BackfillSkillEmbeddings(ctx context.Context) (int, error) {
+	if s.embProvider == nil {
+		return 0, nil
+	}
+
+	rows, err := s.db.QueryContext(ctx,
+		`SELECT id, name, COALESCE(description, '') FROM skills WHERE status = 'active' AND enabled = true AND embedding IS NULL`)
+	if err != nil {
+		return 0, err
+	}
+	defer rows.Close()
+
+	type skillRow struct {
+		id   uuid.UUID
+		name string
+		desc string
+	}
+	var pending []skillRow
+	for rows.Next() {
+		var r skillRow
+		if err := rows.Scan(&r.id, &r.name, &r.desc); err != nil {
+			continue
+		}
+		pending = append(pending, r)
+	}
+
+	if len(pending) == 0 {
+		return 0, nil
+	}
+
+	slog.Info("backfilling skill embeddings", "count", len(pending))
+	updated := 0
+	for _, sk := range pending {
+		text := sk.name
+		if sk.desc != "" {
+			text += ": " + sk.desc
+		}
+		embeddings, err := s.embProvider.Embed(ctx, []string{text})
+		if err != nil {
+			slog.Warn("skill embedding failed", "skill", sk.name, "error", err)
+			continue
+		}
+		if len(embeddings) == 0 || len(embeddings[0]) == 0 {
+			continue
+		}
+		vecStr := vectorToString(embeddings[0])
+		_, err = s.db.ExecContext(ctx,
+			`UPDATE skills SET embedding = $1::vector WHERE id = $2`, vecStr, sk.id)
+		if err != nil {
+			slog.Warn("skill embedding update failed", "skill", sk.name, "error", err)
+			continue
+		}
+		updated++
+	}
+
+	slog.Info("skill embeddings backfill complete", "updated", updated)
+	return updated, nil
+}
+
+// generateEmbedding creates an embedding for a skill's name+description and stores it.
+func (s *PGSkillStore) generateEmbedding(ctx context.Context, slug, name, description string) {
+	if s.embProvider == nil {
+		return
+	}
+	text := name
+	if description != "" {
+		text += ": " + description
+	}
+	embeddings, err := s.embProvider.Embed(ctx, []string{text})
+	if err != nil {
+		slog.Warn("skill embedding generation failed", "skill", name, "error", err)
+		return
+	}
+	if len(embeddings) == 0 || len(embeddings[0]) == 0 {
+		return
+	}
+	vecStr := vectorToString(embeddings[0])
+	_, err = s.db.ExecContext(ctx,
+		`UPDATE skills SET embedding = $1::vector WHERE slug = $2 AND status = 'active'`, vecStr, slug)
+	if err != nil {
+		slog.Warn("skill embedding store failed", "skill", name, "error", err)
+	}
+}

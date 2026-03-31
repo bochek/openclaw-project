@@ -4,7 +4,6 @@
 config/mcp_servers.json
 data/
 logs/
-temp_goclaw/
 __pycache__/
 *.pyc
 .DS_Store
