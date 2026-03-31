@@ -8,7 +8,8 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"path/filepath"	"strings"
+	"path/filepath"
+	"strings"
 	"syscall"
 
 	"github.com/google/uuid"
