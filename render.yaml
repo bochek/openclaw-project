@@ -7,6 +7,10 @@ services:
     envVars:
       - key: OPENCLAW_GATEWAY_PORT
         value: "8080"
+      - key: GOCLAW_CONFIG
+        value: "/app/config/config.json"
+      - key: GOCLAW_DATA_DIR
+        value: "/data"
       - key: GOCLAW_POSTGRES_DSN
         fromDatabase:
           name: goclaw-db

@@ -8,6 +8,15 @@
   "gateway": {
     "port": 8080
   },
+  "telemetry": {
+    "enabled": true,
+    "model_pricing": {
+      "openrouter/meta-llama/Llama-3-70b-chat-hf": {
+        "input_per_million": 0.59,
+        "output_per_million": 0.79
+      }
+    }
+  },
   "tools": {
     "mcp_servers": {
       "mjs-mcp": {

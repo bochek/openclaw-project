@@ -2,8 +2,16 @@
 FROM golang:alpine AS builder
 RUN apk add --no-cache git make
 WORKDIR /app
-RUN git clone https://github.com/nextlevelbuilder/goclaw.git .
-RUN make build
+# COPY current directory instead of cloning from GitHub to include local changes
+COPY . .
+# Build from temp_goclaw if it exists, otherwise build from root.
+# We ensure the binary is named 'goclaw' and migrations are in 'migrations' dir for Stage 2.
+RUN if [ -d "temp_goclaw" ]; then \
+        cd temp_goclaw && go build -o /app/goclaw main.go && \
+        cp -r migrations /app/migrations; \
+    else \
+        go build -o /app/goclaw main.go; \
+    fi
 
 # Stage 2: Final Operational Image
 FROM ubuntu:22.04
