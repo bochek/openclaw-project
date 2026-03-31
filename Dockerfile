@@ -7,10 +7,14 @@ COPY . .
 # Build from temp_goclaw if it exists, otherwise build from root.
 # We ensure the binary is named 'goclaw' and migrations are in 'migrations' dir for Stage 2.
 RUN if [ -d "temp_goclaw" ]; then \
-        cd temp_goclaw && go build -o /app/goclaw main.go && \
+        cd temp_goclaw && \
+        go mod download && \
+        go build -o /app/goclaw . && \
         cp -r migrations /app/migrations; \
     else \
-        go build -o /app/goclaw main.go; \
+        go mod download && \
+        go build -o /app/goclaw . && \
+        cp -r migrations /app/migrations; \
     fi
 
 # Stage 2: Final Operational Image
