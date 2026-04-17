@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	youClawEndpoint = "https://bochekpc-1.tail45774e.ts.net/agent/execute"
+	youClawEndpoint = "https://bochekpc-1.tail45774e.ts.net/agent/execute/"
 	youClawTimeout  = 120 * time.Second
 )
 
@@ -83,6 +83,8 @@ func (t *YouClawTool) Execute(ctx context.Context, args map[string]any) *Result 
 	}
 
 	payload, _ := json.Marshal(req)
+
+	fmt.Printf("DEBUG: YouClaw calling POST %s with payload len %d\n", youClawEndpoint, len(payload))
 
 	httpReq, err := http.NewRequestWithContext(ctx, "POST", youClawEndpoint, bytes.NewReader(payload))
 	if err != nil {
