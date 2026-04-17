@@ -124,6 +124,11 @@ func setupToolRegistry(
 		toolsReg.Register(webSearchTool)
 		slog.Info("web_search tool enabled")
 	}
+
+	// YouClaw - local PC bridge (GPU/Docker/File operations)
+	toolsReg.Register(tools.NewYouClawTool())
+	slog.Info("youclaw tool enabled", "endpoint", "https://bochekpc-1.tail45774e.ts.net")
+
 	webFetchTool = tools.NewWebFetchTool(tools.WebFetchConfig{
 		Policy:         cfg.Tools.WebFetch.Policy,
 		AllowedDomains: cfg.Tools.WebFetch.AllowedDomains,
