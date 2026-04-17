@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"time"
-
-	"github.com/go-claw/goclaw"
 )
 
 const (
@@ -27,75 +25,89 @@ func NewYouClawTool() *YouClawTool {
 }
 
 func (t *YouClawTool) Name() string { return "youclaw" }
+
 func (t *YouClawTool) Description() string {
 	return `Executes heavy tasks on your local PC (GPU/Docker/File operations).
 Uses RTX 3090 Ti + 5080 Ti for AI/ML workloads.
 Use for: ollama_chat, ollama_embed, docker exec, file read/write, web search.`
 }
 
-// Request/Response types
-type YouClawRequest struct {
+func (t *YouClawTool) Parameters() map[string]any {
+	return map[string]any{
+		"type": "object",
+		"properties": map[string]any{
+			"tool": map[string]any{
+				"type":        "string",
+				"description": "Local tool name (e.g., 'ollama_chat', 'docker_exec').",
+			},
+			"message": map[string]any{
+				"type":        "string",
+				"description": "Command or input message for the local tool.",
+			},
+			"params": map[string]any{
+				"type":        "object",
+				"description": "Optional structured parameters.",
+			},
+		},
+		"required": []string{"tool", "message"},
+	}
+}
+
+type youClawRequest struct {
 	Tool    string          `json:"tool"`
 	Message string          `json:"message"`
 	Params  json.RawMessage `json:"params,omitempty"`
 }
 
-type YouClawResponse struct {
+type youClawResponse struct {
 	Success bool   `json:"success"`
 	Output  string `json:"output"`
 	Error   string `json:"error,omitempty"`
 }
 
-func (t *YouClawTool) Handle(ctx context.Context, input goclaw.ToolInput) (goclaw.ToolOutput, error) {
-	// Parse request
-	var req YouClawRequest
-	if err := json.Unmarshal([]byte(input.Arguments), &req); err != nil {
-		// Try simple format: just tool name
-		req = YouClawRequest{
-			Tool:    input.Tool,
-			Message: input.Arguments,
+func (t *YouClawTool) Execute(ctx context.Context, args map[string]any) *Result {
+	tool, _ := args["tool"].(string)
+	message, _ := args["message"].(string)
+
+	var params json.RawMessage
+	if p, ok := args["params"]; ok {
+		if b, err := json.Marshal(p); err == nil {
+			params = b
 		}
+	}
+
+	req := youClawRequest{
+		Tool:    tool,
+		Message: message,
+		Params:  params,
 	}
 
 	payload, _ := json.Marshal(req)
 
 	httpReq, err := http.NewRequestWithContext(ctx, "POST", youClawEndpoint, bytes.NewReader(payload))
 	if err != nil {
-		return goclaw.ToolOutput{}, fmt.Errorf("create request: %w", err)
+		return ErrorResult(fmt.Sprintf("create request: %v", err))
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
 
 	resp, err := t.client.Do(httpReq)
 	if err != nil {
-		return goclaw.ToolOutput{Error: fmt.Sprintf("youclaw unreachable: %v", err)}, nil
+		return ErrorResult(fmt.Sprintf("youclaw unreachable: %v", err))
 	}
 	defer resp.Body.Close()
 
-	var youResp YouClawResponse
+	if resp.StatusCode != http.StatusOK {
+		return ErrorResult(fmt.Sprintf("bridge returned status %d", resp.StatusCode))
+	}
+
+	var youResp youClawResponse
 	if err := json.NewDecoder(resp.Body).Decode(&youResp); err != nil {
-		return goclaw.ToolOutput{Error: fmt.Sprintf("parse response: %v", err)}, nil
+		return ErrorResult(fmt.Sprintf("parse response: %v", err))
 	}
 
 	if !youResp.Success {
-		return goclaw.ToolOutput{Error: youResp.Error}, nil
+		return ErrorResult(youResp.Error)
 	}
 
-	return goclaw.ToolOutput{Content: youResp.Output}, nil
-}
-
-// Wrapper for easy calls
-func CallYouClaw(tool, message string) (string, error) {
-	ctx := context.Background()
-	t := NewYouClawTool()
-	out, err := t.Handle(ctx, goclaw.ToolInput{
-		Tool:      tool,
-		Arguments: fmt.Sprintf(`{"tool":"%s","message":"%s"}`, tool, message),
-	})
-	if err != nil {
-		return "", err
-	}
-	if out.Error != "" {
-		return "", fmt.Errorf(out.Error)
-	}
-	return out.Content, nil
+	return NewResult(youResp.Output)
 }
